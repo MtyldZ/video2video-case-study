@@ -12,7 +12,7 @@ async function connect() {
   const client = await new MongoClient(env().MONGODB_URI).connect();
   const col = client.db(env().MONGODB_DB).collection<TransformationDoc>("transformations");
   await col.createIndexes([
-    { key: { uid: 1, createdAt: -1 } },
+    { key: { uid: 1, _id: -1 } }, // history: newest first per user
     { key: { mhJobId: 1 }, unique: true, sparse: true },
   ]);
   return client;

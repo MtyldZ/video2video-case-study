@@ -2,12 +2,14 @@
 
 import { Card, Flex, Typography } from "antd";
 import { useState } from "react";
+import { HistoryList } from "@/components/HistoryList";
 import { TransformForm } from "@/components/TransformForm";
 import { VideoUpload } from "@/components/VideoUpload";
 import type { UploadedVideo } from "@/lib/schemas";
 
 export default function Home() {
   const [source, setSource] = useState<UploadedVideo | null>(null);
+  const [historyKey, setHistoryKey] = useState(0);
 
   return (
     <main style={{ maxWidth: 960, margin: "0 auto", padding: 16 }}>
@@ -24,9 +26,12 @@ export default function Home() {
         </Card>
         {source && (
           <Card title="2. Choose transformation">
-            <TransformForm key={source.publicId} source={source} />
+            <TransformForm key={source.publicId} source={source} onSubmitted={() => setHistoryKey((k) => k + 1)} />
           </Card>
         )}
+        <Card title="History">
+          <HistoryList refreshKey={historyKey} />
+        </Card>
       </Flex>
     </main>
   );

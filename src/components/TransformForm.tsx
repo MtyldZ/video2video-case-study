@@ -24,9 +24,10 @@ const PROMPT_TYPE_LABELS: Record<(typeof PROMPT_TYPES)[number], string> = {
 
 interface Props {
   source: UploadedVideo;
+  onSubmitted?: () => void;
 }
 
-export function TransformForm({ source }: Props) {
+export function TransformForm({ source, onSubmitted }: Props) {
   const [form] = Form.useForm<FormValues>();
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ type: "success" | "error"; text: string }>();
@@ -57,7 +58,7 @@ export function TransformForm({ source }: Props) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Could not start the transformation.");
-      setResult({ type: "success", text: "Transformation started. It will appear in your history when ready." });
+      setResult({ type: "success", text: "Transformation started. Track it in History below." });
     } catch (e) {
       setResult({
         type: "error",
@@ -65,6 +66,7 @@ export function TransformForm({ source }: Props) {
       });
     } finally {
       setSubmitting(false);
+      onSubmitted?.(); // failed submits also create a record
     }
   }
 

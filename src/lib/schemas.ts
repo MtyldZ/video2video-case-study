@@ -97,6 +97,13 @@ export interface Transformation {
   resultUrl?: string;
   resultPublicId?: string;
   error?: string;
+  checkedAt?: Date; // last fallback status poll (see refreshStaleJobs)
   createdAt: Date;
   updatedAt: Date;
 }
+
+// A record as returned by GET /api/history (JSON: ids and dates as strings).
+export type HistoryItem = Omit<Transformation, "uid" | "checkedAt" | "createdAt" | "updatedAt"> & {
+  createdAt: string;
+  updatedAt: string;
+};
