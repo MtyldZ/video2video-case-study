@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "@/lib/env";
 import type { TransformParams } from "@/lib/schemas";
 
@@ -40,14 +41,33 @@ export function createVideoToVideo(params: TransformParams, videoUrl: string) {
 
 export type VideoProjectStatus = "draft" | "queued" | "rendering" | "complete" | "error" | "canceled";
 
+// Subset of a video project; same shape in GET /video-projects/{id} and webhook payloads.
+export interface VideoProject {
+  id: string;
+  status: VideoProjectStatus;
+  credits_charged?: number;
+  error?: { code: string; message: string } | null;
+  downloads?: { url: string }[];
+}
+
 export function getVideoProject(id: string) {
-  return request<{
-    id: string;
-    status: VideoProjectStatus;
-    credits_charged: number;
-    error: { code: string; message: string } | null;
-    downloads: { url: string; expires_at: string }[];
-  }>(`/video-projects/${encodeURIComponent(id)}`);
+  return request<VideoProject>(`/video-projects/${encodeURIComponent(id)}`);
+}
+
+const SIGNATURE_TOLERANCE_SECONDS = 5 * 60;
+
+// Magic Hour signs `${timestamp}.${rawBody}` with HMAC-SHA256 (hex) using the webhook secret.
+export function verifyWebhookSignature(
+  rawBody: string,
+  timestamp: string | null,
+  signature: string | null,
+  secret: string,
+  nowSeconds = Math.floor(Date.now() / 1000),
+) {
+  if (!timestamp || !signature || !/^\d+$/.test(timestamp) || !/^[0-9a-f]{64}$/i.test(signature)) return false;
+  if (Math.abs(nowSeconds - Number(timestamp)) > SIGNATURE_TOLERANCE_SECONDS) return false; // replay window
+  const expected = createHmac("sha256", secret).update(`${timestamp}.${rawBody}`).digest();
+  return timingSafeEqual(expected, Buffer.from(signature, "hex"));
 }
 
 // Free call; used only to verify the API key.

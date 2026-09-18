@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
+import { verifyWebhookSignature } from "../src/lib/magichour";
 import { transformParamsSchema, uploadBodySchema } from "../src/lib/schemas";
 
 const base = { start_seconds: 0, end_seconds: 3, style: { art_style: "Pixar" } };
@@ -24,4 +26,19 @@ assert.ok(!url("https://ucarecdn.com.evil.com/"), "suffix trick");
 assert.ok(!url("https://a.b.ucarecd.net/"), "nested subdomain");
 assert.ok(!url("not a url"));
 
-console.log("schemas ok");
+// Webhook signature: HMAC-SHA256 hex of `${timestamp}.${body}`.
+const secret = "whsec_test";
+const body = '{"type":"video.completed","payload":{"id":"abc"}}';
+const ts = "1729314984";
+const sig = createHmac("sha256", secret).update(`${ts}.${body}`).digest("hex");
+const now = Number(ts) + 10;
+assert.ok(verifyWebhookSignature(body, ts, sig, secret, now));
+assert.ok(verifyWebhookSignature(body, ts, sig.toUpperCase(), secret, now), "hex case-insensitive");
+assert.ok(!verifyWebhookSignature(body + " ", ts, sig, secret, now), "tampered body");
+assert.ok(!verifyWebhookSignature(body, ts, sig, "other", now), "wrong secret");
+assert.ok(!verifyWebhookSignature(body, ts, sig, secret, now + 301), "too old");
+assert.ok(!verifyWebhookSignature(body, ts, sig, secret, Number(ts) - 301), "too far in future");
+assert.ok(!verifyWebhookSignature(body, null, sig, secret, now), "missing timestamp");
+assert.ok(!verifyWebhookSignature(body, ts, "abc", secret, now), "short signature");
+
+console.log("logic ok");

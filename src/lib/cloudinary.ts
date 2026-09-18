@@ -34,9 +34,14 @@ function toError(e: unknown): Error {
 }
 
 // Cloudinary fetches the remote URL itself, so the video never streams through our function.
-export async function uploadVideoFromUrl(url: string, folder: "sources" | "results"): Promise<UploadedVideo> {
+// A fixed `publicId` makes repeated uploads (e.g. webhook retries) overwrite instead of duplicating.
+export async function uploadVideoFromUrl(
+  url: string,
+  folder: "sources" | "results",
+  publicId?: string,
+): Promise<UploadedVideo> {
   const res = await client()
-    .uploader.upload(url, { resource_type: "video", folder: `video2video/${folder}` })
+    .uploader.upload(url, { resource_type: "video", folder: `video2video/${folder}`, public_id: publicId })
     .catch((e) => {
       throw toError(e);
     });
