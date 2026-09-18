@@ -2,6 +2,7 @@
 
 import { Card, Flex, Typography } from "antd";
 import { useState } from "react";
+import { TransformForm } from "@/components/TransformForm";
 import { VideoUpload } from "@/components/VideoUpload";
 import type { UploadedVideo } from "@/lib/schemas";
 
@@ -21,6 +22,11 @@ export default function Home() {
             <video src={source.url} controls playsInline style={{ width: "100%", marginTop: 16, borderRadius: 8 }} />
           )}
         </Card>
+        {source && (
+          <Card title="2. Choose transformation">
+            <TransformForm key={source.publicId} source={source} />
+          </Card>
+        )}
       </Flex>
     </main>
   );

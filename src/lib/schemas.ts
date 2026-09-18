@@ -70,6 +70,17 @@ export const transformParamsSchema = z
 
 export type TransformParams = z.infer<typeof transformParamsSchema>;
 
+// Body of POST /api/transform. The route also checks the URL belongs to our Cloudinary cloud.
+export const transformBodySchema = z.object({
+  source: z.object({
+    url: z.url({ protocol: /^https$/, hostname: /^res\.cloudinary\.com$/ }),
+    publicId: z.string().min(1).max(300),
+  }),
+  params: transformParamsSchema,
+});
+
+export type TransformBody = z.input<typeof transformBodySchema>;
+
 export const STATUSES = ["pending", "processing", "complete", "failed", "timed_out"] as const;
 export type TransformStatus = (typeof STATUSES)[number];
 

@@ -1,8 +1,9 @@
-import { MongoClient, ObjectId } from "mongodb";
+import { MongoClient } from "mongodb";
 import { env } from "@/lib/env";
 import type { Transformation } from "@/lib/schemas";
 
-export type TransformationDoc = Omit<Transformation, "_id"> & { _id: ObjectId };
+// `_id` is left to the driver (ObjectId); reads return WithId<TransformationDoc>.
+export type TransformationDoc = Omit<Transformation, "_id">;
 
 // Reuse one client across hot reloads (dev) and warm serverless invocations.
 const g = globalThis as unknown as { mongo?: Promise<MongoClient> };
