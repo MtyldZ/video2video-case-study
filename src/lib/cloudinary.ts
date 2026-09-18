@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "@/lib/env";
+import type { UploadedVideo } from "@/lib/schemas";
 
 let configured = false;
 
@@ -33,7 +34,7 @@ function toError(e: unknown): Error {
 }
 
 // Cloudinary fetches the remote URL itself, so the video never streams through our function.
-export async function uploadVideoFromUrl(url: string, folder: "sources" | "results") {
+export async function uploadVideoFromUrl(url: string, folder: "sources" | "results"): Promise<UploadedVideo> {
   const res = await client()
     .uploader.upload(url, { resource_type: "video", folder: `video2video/${folder}` })
     .catch((e) => {

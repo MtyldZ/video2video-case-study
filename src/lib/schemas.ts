@@ -27,6 +27,22 @@ export const VERSIONS = ["default", "v1", "v2"] as const;
 export const PROMPT_TYPES = ["default", "custom", "append_default"] as const;
 export const FPS_RESOLUTIONS = ["HALF", "FULL"] as const;
 
+// Upload limits, shared by the uploader widget and /api/upload.
+// 100 MB = Cloudinary free-plan video limit.
+export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+export const VIDEO_MIME_TYPES = ["video/mp4", "video/quicktime"];
+
+export const uploadBodySchema = z.object({
+  uploadcareUrl: z.url({ protocol: /^https$/, hostname: /^(ucarecdn\.com|[a-z0-9-]+\.ucarecd\.net)$/ }),
+});
+
+// Returned by /api/upload.
+export interface UploadedVideo {
+  url: string;
+  publicId: string;
+  duration?: number;
+}
+
 // Mirrors the Magic Hour request body (minus `assets`, which the server fills
 // with the Cloudinary URL), so it can be forwarded as-is.
 export const transformParamsSchema = z
