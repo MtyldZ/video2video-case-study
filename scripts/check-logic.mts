@@ -13,6 +13,8 @@ assert.equal(parsed.style.model, "default");
 assert.ok(!ok({ ...base, end_seconds: 0 }), "end must be > start");
 assert.ok(!ok({ ...base, start_seconds: 3 }), "end == start rejected");
 assert.ok(!ok({ ...base, style: { art_style: "Nope" } }), "unknown art style");
+assert.ok(ok({ ...base, start_seconds: 1.2, end_seconds: 6.2 }), "exactly 5s allowed");
+assert.ok(!ok({ ...base, end_seconds: 5.1 }), "over 5s rejected");
 assert.ok(!ok({ ...base, style: { art_style: "Pixar", prompt_type: "custom" } }), "custom needs prompt");
 assert.ok(ok({ ...base, style: { art_style: "Pixar", prompt_type: "custom", prompt: "a cat" } }));
 assert.ok(!ok({ ...base, style: { art_style: "Pixar", prompt_type: "append_default", prompt: "   " } }), "blank prompt");

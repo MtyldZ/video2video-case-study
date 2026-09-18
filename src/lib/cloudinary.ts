@@ -49,6 +49,9 @@ export async function uploadVideoFromUrl(
     url: res.secure_url,
     publicId: res.public_id,
     duration: res.duration as number | undefined,
+    width: res.width,
+    height: res.height,
+    bytes: res.bytes,
   };
 }
 

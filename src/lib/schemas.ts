@@ -41,7 +41,14 @@ export interface UploadedVideo {
   url: string;
   publicId: string;
   duration?: number;
+  width?: number;
+  height?: number;
+  bytes?: number;
+  name?: string; // original file name, added client-side
 }
+
+// Caps credit spend per job (~30 credits per second at HALF frame rate).
+export const MAX_CLIP_SECONDS = 5;
 
 // Mirrors the Magic Hour request body (minus `assets`, which the server fills
 // with the Cloudinary URL), so it can be forwarded as-is.
@@ -61,6 +68,10 @@ export const transformParamsSchema = z
   })
   .refine((p) => p.end_seconds > p.start_seconds, {
     message: "End time must be after start time",
+    path: ["end_seconds"],
+  })
+  .refine((p) => p.end_seconds - p.start_seconds <= MAX_CLIP_SECONDS + 1e-9, {
+    message: `Clip can be at most ${MAX_CLIP_SECONDS} seconds`,
     path: ["end_seconds"],
   })
   .refine((p) => p.style.prompt_type === "default" || !!p.style.prompt, {
