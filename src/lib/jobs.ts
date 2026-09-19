@@ -94,7 +94,7 @@ export async function refreshStaleJobs(records: WithId<TransformationDoc>[]) {
           {
             $set: {
               status: "timed_out",
-              error: `No result after ${TIMEOUT_MINUTES} minutes. It may still finish; this page keeps checking.`,
+              error: `No result after ${TIMEOUT_MINUTES} minutes. It may still finish: use Check again or reopen History later.`,
               updatedAt: new Date(),
             },
           },

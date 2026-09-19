@@ -87,7 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Menu
           mode="vertical"
           selectedKeys={[current]}
-          style={{ border: 0 }}
+          style={{ border: 0, borderRadius: 14 }}
           items={NAV.map((n) => ({ key: n.key, icon: n.icon, label: n.label }))}
           onClick={({ key }) => {
             setMenuOpen(false);

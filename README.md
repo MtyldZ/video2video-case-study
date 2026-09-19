@@ -6,6 +6,18 @@ Restyle short videos with AI. Upload a clip, pick one of Magic Hour's 75 art sty
 
 Built with Next.js 16 (App Router) · TypeScript · Ant Design 6 · MongoDB · Uploadcare · Cloudinary · Magic Hour API · Vercel.
 
+## Screenshots
+
+| Configure | Result |
+|---|---|
+| ![Configure step with every Magic Hour option and a render summary](docs/screenshots/create-configure.png) | ![Before/after comparison of a completed render](docs/screenshots/processing-complete.png) |
+
+![History with processing, complete, failed and timed-out jobs](docs/screenshots/history.png)
+
+![Mobile: create (dark mode), history, detail drawer](docs/screenshots/mobile.png)
+
+<sub>The videos are real Magic Hour renders (Pixar and Studio Ghibli). Some History entries were staged to show every status.</sub>
+
 ---
 
 ## Contents

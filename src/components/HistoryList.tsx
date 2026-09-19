@@ -258,7 +258,7 @@ export function HistoryList() {
               bordered
               column={1}
               items={[
-                { key: "id", label: "Job ID", children: <Typography.Text code>{open.mhJobId ?? open._id}</Typography.Text> },
+                { key: "id", label: "Job ID", children: <Typography.Text copyable style={{ fontFamily: "var(--font-mono), monospace", fontSize: 12, wordBreak: "break-all" }}>{open.mhJobId ?? open._id}</Typography.Text> },
                 { key: "created", label: "Created", children: new Date(open.createdAt).toLocaleString() },
                 { key: "style", label: "Art style", children: open.params.style.art_style },
                 { key: "model", label: "Model", children: open.params.style.model },

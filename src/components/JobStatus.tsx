@@ -1,6 +1,6 @@
 "use client";
 
-import { CopyOutlined, DownloadOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import { CopyOutlined, DownloadOutlined, PlusOutlined, ReloadOutlined, SyncOutlined } from "@ant-design/icons";
 import { Alert, App, Button, Col, Flex, Popconfirm, Result, Row, Spin, theme, Typography } from "antd";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -193,7 +193,7 @@ export function JobStatus({ jobId, onRetried, onChangeSettings, onNew }: Props) 
       title="Still no result"
       subTitle={item.error}
       extra={[
-        <Button key="check" icon={<ReloadOutlined />} loading={checking} onClick={() => { setChecking(true); load().finally(() => setChecking(false)); }}>
+        <Button key="check" icon={<SyncOutlined />} loading={checking} onClick={() => { setChecking(true); load().finally(() => setChecking(false)); }}>
           Check again
         </Button>,
         retryButton,
