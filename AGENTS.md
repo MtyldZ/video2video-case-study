@@ -12,7 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Video to Video: upload a short clip, pick a Magic Hour art style, get an AI-restyled video back via an async webhook. Next.js 16 App Router, TypeScript (strict), Ant Design 6, MongoDB, Uploadcare, Cloudinary, Magic Hour, deployed on Vercel.
 
-**Read `README.md` first.** It is the source of truth for the architecture, the webhook/async flow, the API contract, and environment setup. This file covers only what an agent needs on top of it.
+**Read `README.md` first.** It is the source of truth for the architecture, the webhook/async flow and environment setup; the API contract is in `docs/api.md`. This file covers only what an agent needs on top of it.
 
 ## Commands
 
