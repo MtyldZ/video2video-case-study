@@ -69,7 +69,7 @@ npm run dev                       # http://localhost:3000
 |---|---|
 | `npm run dev` / `build` / `start` | Next.js dev server, production build, production server |
 | `npm run lint` | ESLint |
-| `npm run check:logic` | Assertion checks for input validation, the 5 s clip cap, the credit estimate and webhook signature verification. Needs no keys. |
+| `npm run check:logic` | Assertion checks for input validation, the credit estimate and webhook signature verification. Needs no keys. |
 | `npm run check:services` | Connects to MongoDB, Cloudinary and Magic Hour with your `.env.local`. Free. |
 | `npm run webhook:replay -- <mhJobId> [completed\|errored] [url]` | Sends a correctly signed Magic Hour-style event to your local app, for testing the webhook without a tunnel |
 
@@ -102,7 +102,7 @@ Indexes are created automatically on first connection.
 
 ### Magic Hour credits
 
-The free tier starts with 500 credits. Magic Hour prices video-to-video at **48 credits per second at 24 fps**, i.e. **2 credits per rendered frame**. HALF renders every other frame, so a 30 fps clip costs about 30 credits per second at HALF and 60 at FULL (matching the charges on our real test jobs). To protect the budget, **clips are capped at 5 seconds**, enforced in both the form and the API.
+The free tier starts with 500 credits. Magic Hour prices video-to-video at **48 credits per second at 24 fps**, i.e. **2 credits per rendered frame**. HALF renders every other frame, so a 30 fps clip costs about 30 credits per second at HALF and 60 at FULL (matching the charges on our real test jobs).
 
 The app shows the account's **remaining credits** in the header (`GET /api/credits`) and a live **estimated cost** in the render summary before submitting: `2 × clip seconds × output fps`, using the source frame rate Cloudinary reports at upload. Submit is disabled when the estimate exceeds the balance. Magic Hour settles the exact charge after rendering, and History shows that final number.
 
@@ -289,4 +289,4 @@ scripts/                     check-logic, check-services, replay-webhook
 - **Anonymous history.** It's per browser, so a different browser or a private window has its own history.
 - **History shows the newest 50 items.** Paging (an `_id < before` cursor) is a small addition if needed.
 - **No background worker.** Fallback polling runs only when someone views History or the Processing step. Webhooks cover the rest in production.
-- **The 5 s clip cap** exists to protect the free credit budget. It's one constant (`MAX_CLIP_SECONDS` in `src/lib/schemas.ts`).
+- **No clip length cap.** The budget is protected by the live cost estimate and the balance check, and the form defaults to a 1 s range (≈30 credits at HALF). Magic Hour itself rejects jobs the account can't afford (402).

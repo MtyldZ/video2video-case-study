@@ -25,7 +25,7 @@ Starts a Magic Hour job. `params` mirrors Magic Hour's request body, so every mo
   "source": { "url": "https://res.cloudinary.com/<cloud>/video/upload/…", "publicId": "video2video/sources/<id>" },
   "params": {
     "name": "Skate park",                       // optional
-    "start_seconds": 0, "end_seconds": 3,       // end > start, length ≤ 5 s
+    "start_seconds": 0, "end_seconds": 3,       // end > start, within the video
     "fps_resolution": "HALF",                   // HALF | FULL
     "style": {
       "art_style": "Pixar",                     // one of 75 styles

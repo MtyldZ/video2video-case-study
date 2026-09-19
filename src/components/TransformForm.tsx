@@ -9,7 +9,6 @@ import {
   ART_STYLES,
   estimateCredits,
   FPS_RESOLUTIONS,
-  MAX_CLIP_SECONDS,
   MODELS,
   PROMPT_TYPES,
   type TransformParams,
@@ -26,13 +25,6 @@ const PROMPT_TYPE_LABELS: Record<(typeof PROMPT_TYPES)[number], string> = {
   append_default: "Style default + my prompt",
 };
 const round1 = (n: number) => Math.round(n * 10) / 10;
-
-// Keeps the range within MAX_CLIP_SECONDS by dragging the other handle along.
-function capRange(value: [number, number], prev?: [number, number]): [number, number] {
-  const [start, end] = value;
-  if (end - start <= MAX_CLIP_SECONDS) return value;
-  return prev && start !== prev[0] ? [start, round1(start + MAX_CLIP_SECONDS)] : [round1(end - MAX_CLIP_SECONDS), end];
-}
 
 interface Props {
   source: UploadedVideo;
@@ -83,7 +75,7 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
       onFinish={submit}
       disabled={submitting}
       initialValues={{
-        range: initial ? [initial.start_seconds, initial.end_seconds] : [0, Math.min(3, max)],
+        range: initial ? [initial.start_seconds, initial.end_seconds] : [0, Math.min(1, max)],
         fps_resolution: initial?.fps_resolution ?? "HALF",
         name: initial?.name,
         style: initial?.style ?? { version: "default", model: "default", prompt_type: "default" },
@@ -95,7 +87,6 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
         label="Clip range"
         name="range"
         tooltip="Only the selected range is transformed."
-        normalize={capRange}
         extra={
           <>
             {range && (
@@ -103,7 +94,7 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
                 {range[0]}–{range[1]}s · {round1(range[1] - range[0])}s selected
               </Typography.Text>
             )}{" "}
-            Up to {MAX_CLIP_SECONDS}s per render. Longer clips and FULL frame rate use more credits.
+            Longer clips and FULL frame rate use more credits; see the estimate below.
           </>
         }
         rules={[

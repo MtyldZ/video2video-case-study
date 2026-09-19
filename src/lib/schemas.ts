@@ -48,9 +48,6 @@ export interface UploadedVideo {
   name?: string; // original file name, added client-side
 }
 
-// Caps credit spend per job (~30 credits per second at HALF frame rate).
-export const MAX_CLIP_SECONDS = 5;
-
 // Magic Hour prices video-to-video at 48 credits/second at 24 fps, i.e. 2 credits per rendered frame.
 // HALF renders every other frame. Magic Hour corrects the charge after rendering, so this is an estimate.
 const CREDITS_PER_FRAME = 2;
@@ -79,10 +76,6 @@ export const transformParamsSchema = z
   })
   .refine((p) => p.end_seconds > p.start_seconds, {
     message: "End time must be after start time",
-    path: ["end_seconds"],
-  })
-  .refine((p) => p.end_seconds - p.start_seconds <= MAX_CLIP_SECONDS + 1e-9, {
-    message: `Clip can be at most ${MAX_CLIP_SECONDS} seconds`,
     path: ["end_seconds"],
   })
   .refine((p) => p.style.prompt_type === "default" || !!p.style.prompt, {

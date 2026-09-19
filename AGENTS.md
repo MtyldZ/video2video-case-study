@@ -20,7 +20,7 @@ Video to Video: upload a short clip, pick a Magic Hour art style, get an AI-rest
 |---|---|
 | `npm run dev` | Dev server on :3000. Needs `.env.local` (see `.env.example`). |
 | `npx tsc --noEmit` · `npm run lint` · `npm run build` | Run all three before calling a change done. |
-| `npm run check:logic` | Assertion checks for schemas, the clip cap, the credit estimate and webhook signatures. No keys needed; extend it when you touch that logic. |
+| `npm run check:logic` | Assertion checks for schemas, the credit estimate and webhook signatures. No keys needed; extend it when you touch that logic. |
 | `npm run check:services` | Verifies MongoDB, Cloudinary and Magic Hour credentials. Free. |
 | `npm run webhook:replay -- <mhJobId> [completed\|errored]` | Sends a signed test webhook to the local app. |
 
@@ -41,7 +41,7 @@ There is no unit-test framework on purpose; `check:logic` is the test suite.
 2. **Results only go through `applyProjectResult`.** It is idempotent (final states are never overwritten, and the Cloudinary public id is the job id) because Magic Hour retries webhooks for 24 h.
 3. **Webhook:** verify the HMAC signature over the **raw** body before parsing. Return non-2xx only when a retry should happen (404 unknown job, 500 transient failure).
 4. **`timed_out` is not final.** A late result must still be able to complete the record.
-5. **Validation lives in zod schemas** used on both sides. Server routes must never trust the client (upload URL allowlist, own-Cloudinary source check, 5 s clip cap).
+5. **Validation lives in zod schemas** used on both sides. Server routes must never trust the client (upload URL allowlist, own-Cloudinary source check).
 6. **Secrets stay server-side.** Only `NEXT_PUBLIC_UPLOADCARE_PUBLIC_KEY` reaches the browser. Read env through `env()` (lazy, zod-validated).
 7. API errors are `{ error: string }` with a user-facing message; log details server-side with `console.error`.
 
