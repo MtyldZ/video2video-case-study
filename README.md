@@ -2,7 +2,7 @@
 
 Restyle short videos with AI. Upload a clip, pick one of Magic Hour's 75 art styles, and get a transformed video back a few minutes later. Every job is kept in a per-browser history with its parameters, source and result.
 
-**Live:** _added after deploy_
+**Live:** https://video2video-case-study.vercel.app
 
 Built with Next.js 16 (App Router) · TypeScript · Ant Design 6 · MongoDB · Uploadcare · Cloudinary · Magic Hour API · Vercel.
 
@@ -42,7 +42,7 @@ The user flow is three steps: **Upload → Configure → Processing**. History l
 **Requirements:** Node.js 20.9+ and free accounts on Uploadcare, Cloudinary, MongoDB Atlas and Magic Hour (see [Environment variables](#environment-variables)).
 
 ```bash
-git clone <repo-url> && cd case-study-meatec
+git clone https://github.com/MtyldZ/video2video-case-study.git && cd video2video-case-study
 npm install
 cp .env.example .env.local        # then fill in the keys
 npm run check:services            # verifies MongoDB, Cloudinary and Magic Hour credentials (uses no credits)
@@ -91,6 +91,8 @@ Indexes are created automatically on first connection.
 ### Magic Hour credits
 
 The free tier starts with 500 credits. A video-to-video render cost about **30 credits per second of clip at HALF frame rate** and roughly twice that at FULL. To protect the budget, **clips are capped at 5 seconds**, enforced in both the form and the API.
+
+**Known quirk:** for some styles (e.g. Studio Ghibli), style version `default` resolves to a V3 model that the API doesn't serve yet, and Magic Hour rejects the job without charging. The app explains this and asks the user to pick `v1` or `v2`.
 
 ---
 

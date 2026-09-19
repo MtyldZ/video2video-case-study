@@ -10,6 +10,10 @@ const fail = (status: number, error: string) => Response.json({ error }, { statu
 
 // Maps Magic Hour failures to what the user can act on. Auth errors are our config problem, not theirs.
 function magicHourFailure(e: MagicHourError): [number, string] {
+  // Some styles' "default" version maps to V3, which the API doesn't serve yet.
+  if (/\bV3\b/i.test(e.message)) {
+    return [400, "This style's default version isn't available through the API yet. Choose style version v1 or v2 and try again."];
+  }
   if (e.status === 400 || e.status === 422) return [400, `Invalid parameters: ${e.message}`];
   if (e.status === 402) return [402, "Not enough Magic Hour credits to run this transformation."];
   if (e.status === 429) return [429, "Too many requests. Please wait a moment and try again."];
