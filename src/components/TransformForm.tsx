@@ -3,9 +3,11 @@
 import { ThunderboltOutlined } from "@ant-design/icons";
 import { Alert, Button, Col, Descriptions, Form, Grid, Input, Radio, Row, Select, Slider, theme, Typography } from "antd";
 import { useState } from "react";
+import { notifyCreditsChanged, useCredits } from "@/components/useCredits";
 import { startTransform } from "@/lib/api";
 import {
   ART_STYLES,
+  estimateCredits,
   FPS_RESOLUTIONS,
   MAX_CLIP_SECONDS,
   MODELS,
@@ -50,6 +52,9 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
   const values = Form.useWatch([], form);
   const range = values?.range;
   const promptType = values?.style?.prompt_type;
+  const credits = useCredits();
+  const estimate = range ? estimateCredits(range[1] - range[0], values?.fps_resolution ?? "HALF", source.frameRate) : undefined;
+  const overBudget = credits != null && estimate != null && estimate > credits;
 
   async function submit(v: FormValues) {
     setSubmitting(true);
@@ -63,6 +68,7 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
     };
     try {
       const { id } = await startTransform({ source: { url: source.url, publicId: source.publicId }, params });
+      notifyCreditsChanged();
       onSubmitted(id, params);
     } catch (e) {
       setError((e as Error).message);
@@ -166,6 +172,15 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
             { key: "model", label: "Model", children: values?.style?.model },
             { key: "fps", label: "Frame rate", children: values?.fps_resolution },
             { key: "prompt", label: "Prompt", children: promptType && PROMPT_TYPE_LABELS[promptType] },
+            {
+              key: "cost",
+              label: "Estimated cost",
+              children: (
+                <Typography.Text strong type={overBudget ? "danger" : undefined}>
+                  ≈ {estimate} credits{credits != null && <Typography.Text type="secondary"> · {credits} left</Typography.Text>}
+                </Typography.Text>
+              ),
+            },
           ]}
         />
       )}
@@ -177,11 +192,20 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
             : { maxWidth: 420 }
         }
       >
-        <Button type="primary" htmlType="submit" size="large" block loading={submitting} icon={<ThunderboltOutlined />}>
+        {overBudget && (
+          <Alert
+            type="warning"
+            showIcon
+            title="Not enough credits for this render"
+            description={values?.fps_resolution === "FULL" ? "Shorten the clip or switch to HALF frame rate." : "Shorten the clip."}
+            style={{ marginBottom: 12 }}
+          />
+        )}
+        <Button type="primary" htmlType="submit" size="large" block loading={submitting} disabled={overBudget} icon={<ThunderboltOutlined />}>
           {submitting ? "Queueing render…" : "Transform video"}
         </Button>
         <Typography.Paragraph type="secondary" style={{ fontSize: 12, textAlign: "center", margin: "8px 0 0" }}>
-          Credits are charged per rendered frame and confirmed when the job completes.
+          About 2 credits per rendered frame. The final charge is confirmed when the job completes.
         </Typography.Paragraph>
       </div>
     </Form>

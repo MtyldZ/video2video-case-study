@@ -69,7 +69,7 @@ npm run dev                       # http://localhost:3000
 |---|---|
 | `npm run dev` / `build` / `start` | Next.js dev server, production build, production server |
 | `npm run lint` | ESLint |
-| `npm run check:logic` | Assertion checks for input validation, the 5 s clip cap and webhook signature verification. Needs no keys. |
+| `npm run check:logic` | Assertion checks for input validation, the 5 s clip cap, the credit estimate and webhook signature verification. Needs no keys. |
 | `npm run check:services` | Connects to MongoDB, Cloudinary and Magic Hour with your `.env.local`. Free. |
 | `npm run webhook:replay -- <mhJobId> [completed\|errored] [url]` | Sends a correctly signed Magic Hour-style event to your local app, for testing the webhook without a tunnel |
 
@@ -102,7 +102,9 @@ Indexes are created automatically on first connection.
 
 ### Magic Hour credits
 
-The free tier starts with 500 credits. A video-to-video render cost about **30 credits per second of clip at HALF frame rate** and roughly twice that at FULL. To protect the budget, **clips are capped at 5 seconds**, enforced in both the form and the API.
+The free tier starts with 500 credits. Magic Hour prices video-to-video at **48 credits per second at 24 fps**, i.e. **2 credits per rendered frame**. HALF renders every other frame, so a 30 fps clip costs about 30 credits per second at HALF and 60 at FULL (matching the charges on our real test jobs). To protect the budget, **clips are capped at 5 seconds**, enforced in both the form and the API.
+
+The app shows the account's **remaining credits** in the header (`GET /api/credits`) and a live **estimated cost** in the render summary before submitting: `2 × clip seconds × output fps`, using the source frame rate Cloudinary reports at upload. Submit is disabled when the estimate exceeds the balance. Magic Hour settles the exact charge after rendering, and History shows that final number.
 
 **Known quirk:** for some styles (e.g. Studio Ghibli), style version `default` resolves to a V3 model that the API doesn't serve yet, and Magic Hour rejects the job without charging. The app explains this and asks the user to pick `v1` or `v2`.
 
@@ -200,7 +202,7 @@ Copies a video already uploaded to Uploadcare into Cloudinary.
 { "uploadcareUrl": "https://<prefix>.ucarecd.net/<uuid>/" }
 // 200
 { "url": "https://res.cloudinary.com/…/video2video/sources/<id>.mp4", "publicId": "video2video/sources/<id>",
-  "duration": 13.4, "width": 854, "height": 480, "bytes": 9094354 }
+  "duration": 13.4, "width": 854, "height": 480, "bytes": 9094354, "frameRate": 29.97 }
 ```
 Errors: `400` invalid or non-Uploadcare URL, or unreachable file · `413` over 100 MB · `415` not MP4/MOV · `502` Cloudinary failure.
 
@@ -233,6 +235,14 @@ Errors: `400` invalid parameters, a source from another Cloudinary account, or M
 Magic Hour's callback. Requires the `magic-hour-event-signature` and `magic-hour-event-timestamp` headers.
 Responses: `204` handled or ignored · `401` bad signature or stale timestamp · `400` malformed body · `404` unknown job (retried) · `500` processing failed or secret not configured (retried).
 
+### `GET /api/credits`
+The Magic Hour account's remaining credits (shared by everyone using the app).
+
+```json
+{ "credits": 510 }
+```
+Errors: `502` Magic Hour unavailable.
+
 ### `GET /api/history`
 The current browser's 50 most recent transformations, newest first. Also runs the [fallback polling](#fallback-polling).
 
@@ -252,6 +262,7 @@ Errors: `503` database unavailable.
 | Upload | Invalid, foreign or unreachable URL | "Invalid video URL…" / "Video URL is not reachable." |
 | Upload | Cloudinary failure, network error | Error alert; remove the file and retry |
 | Configure | Missing style, missing prompt, clip > 5 s | Inline field errors; the slider can't exceed 5 s |
+| Configure | Estimate above the remaining credits | Warning alert; submit disabled |
 | Submit | No credits, bad parameters, rate limit, service down | Alert with a specific message (402 / 400 / 429 / 502) |
 | Processing | Render failed or canceled | Error result with Magic Hour's message, **Retry** and **Change settings** |
 | Processing | No result after 20 min | Warning result with **Check again** and **Retry** |
@@ -300,6 +311,7 @@ src/
     api/transform/route.ts   Create record, submit to Magic Hour
     api/webhook/route.ts     Verify signature, apply result
     api/history/route.ts     List records + fallback polling
+    api/credits/route.ts     Remaining Magic Hour credits
     layout.tsx, providers.tsx, error.tsx, not-found.tsx, icons and share images
   components/
     AppShell.tsx             Header / nav / footer / offline banner

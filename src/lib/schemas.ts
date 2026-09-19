@@ -44,11 +44,22 @@ export interface UploadedVideo {
   width?: number;
   height?: number;
   bytes?: number;
+  frameRate?: number;
   name?: string; // original file name, added client-side
 }
 
 // Caps credit spend per job (~30 credits per second at HALF frame rate).
 export const MAX_CLIP_SECONDS = 5;
+
+// Magic Hour prices video-to-video at 48 credits/second at 24 fps, i.e. 2 credits per rendered frame.
+// HALF renders every other frame. Magic Hour corrects the charge after rendering, so this is an estimate.
+const CREDITS_PER_FRAME = 2;
+const FALLBACK_FPS = 30; // when the source frame rate is unknown
+
+export function estimateCredits(seconds: number, fpsResolution: "HALF" | "FULL", sourceFps = FALLBACK_FPS) {
+  const outputFps = fpsResolution === "HALF" ? sourceFps / 2 : sourceFps;
+  return Math.ceil(seconds * outputFps - 1e-6) * CREDITS_PER_FRAME;
+}
 
 // Mirrors the Magic Hour request body (minus `assets`, which the server fills
 // with the Cloudinary URL), so it can be forwarded as-is.

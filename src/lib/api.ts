@@ -16,6 +16,8 @@ async function call<T>(input: string, init?: RequestInit): Promise<T> {
 
 export const fetchHistory = () => call<{ items: HistoryItem[] }>("/api/history").then((d) => d.items);
 
+export const fetchCredits = () => call<{ credits: number }>("/api/credits").then((d) => d.credits);
+
 export const startTransform = (body: TransformBody) =>
   call<{ id: string }>("/api/transform", {
     method: "POST",

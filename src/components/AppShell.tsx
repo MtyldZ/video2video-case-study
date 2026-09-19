@@ -1,11 +1,12 @@
 "use client";
 
 import { HistoryOutlined, MenuOutlined, ThunderboltOutlined } from "@ant-design/icons";
-import { Alert, Button, Drawer, Flex, Grid, Layout, Menu, Segmented, theme, Typography } from "antd";
+import { Alert, Button, Drawer, Flex, Grid, Layout, Menu, Segmented, Tag, theme, Tooltip, Typography } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { Logo } from "@/components/Logo";
+import { useCredits } from "@/components/useCredits";
 
 const NAV = [
   { key: "/", label: "Create", icon: <ThunderboltOutlined /> },
@@ -28,6 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isMobile = Grid.useBreakpoint().sm === false;
   const [menuOpen, setMenuOpen] = useState(false);
   const online = useSyncExternalStore(subscribeOnline, () => navigator.onLine, () => true);
+  const credits = useCredits();
   const current = NAV.some((n) => n.key === pathname) ? pathname : "";
 
   return (
@@ -47,6 +49,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Logo />
         </Link>
         <div style={{ flex: 1 }} />
+        {credits != null && (
+          <Tooltip title="Magic Hour credits left on this demo account">
+            <Tag icon={<ThunderboltOutlined />} style={{ marginInlineEnd: 0 }}>
+              {credits}
+              {isMobile ? "" : " credits"}
+            </Tag>
+          </Tooltip>
+        )}
         {isMobile ? (
           <Button type="text" size="large" icon={<MenuOutlined />} aria-label="Open navigation" onClick={() => setMenuOpen(true)} />
         ) : (

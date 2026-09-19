@@ -70,7 +70,7 @@ export function verifyWebhookSignature(
   return timingSafeEqual(expected, Buffer.from(signature, "hex"));
 }
 
-// Free call; used only to verify the API key.
+// Free call: credit balance (also used to verify the API key).
 export function getAccount() {
-  return request<{ id: string; name: string; email: string }>("/account");
+  return request<{ id: string; credits: number }>("/account");
 }

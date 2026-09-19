@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import { verifyWebhookSignature } from "../src/lib/magichour";
-import { transformParamsSchema, uploadBodySchema } from "../src/lib/schemas";
+import { estimateCredits, transformParamsSchema, uploadBodySchema } from "../src/lib/schemas";
 
 const base = { start_seconds: 0, end_seconds: 3, style: { art_style: "Pixar" } };
 const ok = (v: unknown) => transformParamsSchema.safeParse(v).success;
@@ -42,5 +42,12 @@ assert.ok(!verifyWebhookSignature(body, ts, sig, secret, now + 301), "too old");
 assert.ok(!verifyWebhookSignature(body, ts, sig, secret, Number(ts) - 301), "too far in future");
 assert.ok(!verifyWebhookSignature(body, null, sig, secret, now), "missing timestamp");
 assert.ok(!verifyWebhookSignature(body, ts, "abc", secret, now), "short signature");
+
+// Credit estimate: 2 credits per rendered frame (Magic Hour: 48 credits/s at 24 fps).
+assert.equal(estimateCredits(1, "FULL", 24), 48, "matches Magic Hour's published rate");
+assert.equal(estimateCredits(1, "HALF", 30), 30, "matches our real 1s HALF jobs (30 charged)");
+assert.equal(estimateCredits(1, "HALF", 29.97), 30, "29.97 fps rounds up to 15 frames");
+assert.equal(estimateCredits(5, "FULL", 30), 300);
+assert.equal(estimateCredits(1, "HALF"), 30, "unknown fps falls back to 30");
 
 console.log("logic ok");

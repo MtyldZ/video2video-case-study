@@ -52,6 +52,7 @@ export async function uploadVideoFromUrl(
     width: res.width,
     height: res.height,
     bytes: res.bytes,
+    frameRate: res.frame_rate as number | undefined,
   };
 }
 

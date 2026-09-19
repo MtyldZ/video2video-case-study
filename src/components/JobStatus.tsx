@@ -5,6 +5,7 @@ import { Alert, App, Button, Col, Flex, Popconfirm, Result, Row, Spin, theme, Ty
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { describeParams, isActive, jobTitle, StatusTag, VideoPlayer } from "@/components/JobParts";
+import { notifyCreditsChanged } from "@/components/useCredits";
 import { fetchHistory, retryTransform } from "@/lib/api";
 import { downloadUrl } from "@/lib/media";
 import type { HistoryItem } from "@/lib/schemas";
@@ -71,6 +72,11 @@ export function JobStatus({ jobId, onRetried, onChangeSettings, onNew }: Props) 
   }, [jobId]);
 
   const active = !!item && isActive(item.status);
+  const status = item?.status;
+  // Magic Hour settles the final charge (or refund) when a job ends.
+  useEffect(() => {
+    if (status === "complete" || status === "failed") notifyCreditsChanged();
+  }, [status]);
   useEffect(() => {
     if (!active) return;
     const t = setInterval(load, POLL_MS);
