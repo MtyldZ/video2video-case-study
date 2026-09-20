@@ -3,7 +3,7 @@
 import { ThunderboltOutlined } from "@ant-design/icons";
 import { Alert, Button, Col, Descriptions, Flex, Form, Grid, Input, Radio, Row, Select, Slider, theme, Typography } from "antd";
 import { useState } from "react";
-import { RangePreview } from "@/components/RangePreview";
+import { VideoPlayer } from "@/components/JobParts";
 import { notifyCreditsChanged, useCredits } from "@/components/useCredits";
 import { startTransform } from "@/lib/api";
 import {
@@ -117,7 +117,11 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
 
       {range && range[1] > range[0] && (
         <div style={{ marginBottom: 24, maxWidth: 520 }}>
-          <RangePreview url={source.url} start={range[0]} end={range[1]} />
+          <VideoPlayer
+            url={source.url}
+            range={{ start: range[0], end: range[1] }}
+            caption={`Preview of the selected range. Playback loops between ${range[0]}s and ${range[1]}s.`}
+          />
         </div>
       )}
 

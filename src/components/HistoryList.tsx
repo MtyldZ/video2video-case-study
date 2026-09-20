@@ -28,13 +28,13 @@ import type { HistoryItem } from "@/lib/schemas";
 
 const POLL_MS = 5000;
 
-function Thumb({ url, label }: { url?: string; label: string }) {
+function Thumb({ url, label, at }: { url?: string; label: string; at?: number }) {
   const { token } = theme.useToken();
   if (!url) return <VideoPlayer placeholder={label} />;
   return (
     // eslint-disable-next-line @next/next/no-img-element -- Cloudinary already serves an optimized frame
     <img
-      src={posterUrl(url)}
+      src={posterUrl(url, at)}
       alt={label}
       loading="lazy"
       style={{ width: "100%", aspectRatio: "16 / 9", objectFit: "cover", borderRadius: token.borderRadius, background: "#000", display: "block" }}
@@ -165,7 +165,7 @@ export function HistoryList() {
           <Col xs={24} sm={10} md={8} lg={6}>
             <Flex gap={8}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <Thumb url={item.sourceUrl} label="source" />
+                <Thumb url={item.sourceUrl} label="source" at={Math.floor(item.params.start_seconds)} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <Thumb url={item.resultUrl} label={isActive(item.status) ? "rendering…" : "no result"} />
@@ -247,7 +247,7 @@ export function HistoryList() {
             {open.error && <Alert type={open.status === "timed_out" ? "warning" : "error"} showIcon title={open.error} />}
             <Row gutter={[12, 12]}>
               <Col xs={24} md={12}>
-                <VideoPlayer label="Source" url={open.sourceUrl} />
+                <VideoPlayer label="Source" url={open.sourceUrl} range={{ start: open.params.start_seconds, end: open.params.end_seconds }} />
               </Col>
               <Col xs={24} md={12}>
                 <VideoPlayer label="Result" url={open.resultUrl} />

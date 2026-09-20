@@ -161,7 +161,7 @@ export function JobStatus({ jobId, onRetried, onChangeSettings, onNew }: Props) 
         </Typography.Text>
         <Row gutter={[24, 16]}>
           <Col xs={24} md={12}>
-            <VideoPlayer label="Before" url={item.sourceUrl} />
+            <VideoPlayer label="Before" url={item.sourceUrl} range={{ start: item.params.start_seconds, end: item.params.end_seconds }} />
           </Col>
           <Col xs={24} md={12}>
             <VideoPlayer label={`After · ${item.params.style.art_style}`} url={item.resultUrl} />
