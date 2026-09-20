@@ -2,7 +2,7 @@
 
 import { ThunderboltOutlined } from "@ant-design/icons";
 import { Alert, Button, Col, Descriptions, Flex, Form, Grid, Input, Radio, Row, Select, Slider, theme, Typography } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VideoPlayer } from "@/components/JobParts";
 import { notifyCreditsChanged, useCredits } from "@/components/useCredits";
 import { startTransform } from "@/lib/api";
@@ -46,6 +46,14 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
   const range = values?.range;
   const promptType = values?.style?.prompt_type;
   const credits = useCredits();
+  // Settle before swapping the preview: the player remounts on each new range, so following every
+  // slider step would make it flicker. Nothing is fetched until play (preload="none").
+  const [previewRange, setPreviewRange] = useState<[number, number]>();
+  useEffect(() => {
+    if (!range) return;
+    const t = setTimeout(() => setPreviewRange([range[0], range[1]]), 500);
+    return () => clearTimeout(t);
+  }, [range]);
   const estimate = range ? estimateCredits(range[1] - range[0], values?.fps_resolution ?? "HALF", source.frameRate) : undefined;
   const overBudget = credits != null && estimate != null && estimate > credits;
   const estimateText = (
@@ -115,12 +123,13 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
         <Slider range min={0} max={max} step={0.1} tooltip={{ formatter: (v) => `${v}s` }} />
       </Form.Item>
 
-      {range && range[1] > range[0] && (
+      {previewRange && previewRange[1] > previewRange[0] && (
         <div style={{ marginBottom: 24, maxWidth: 520 }}>
           <VideoPlayer
+            key={`${previewRange[0]}-${previewRange[1]}`}
             url={source.url}
-            range={{ start: range[0], end: range[1] }}
-            caption={`Preview of the selected range. Playback loops between ${range[0]}s and ${range[1]}s.`}
+            range={{ start: previewRange[0], end: previewRange[1] }}
+            caption={`Preview of the selected range: ${previewRange[0]}s to ${previewRange[1]}s.`}
           />
         </div>
       )}

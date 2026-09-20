@@ -4,6 +4,9 @@ const withTransform = (url: string, t: string) => url.replace("/upload/", `/uplo
 // Auto quality: smaller files on slow/mobile connections.
 export const playbackUrl = (url: string) => withTransform(url, "q_auto");
 export const downloadUrl = (url: string) => withTransform(url, "fl_attachment");
+// Trimmed copy, so a source plays as the clip that was rendered: real duration, no looping tricks.
+// Cloudinary derives it on first request (about a second) and caches it afterwards.
+export const clipUrl = (url: string, start: number, end: number) => withTransform(url, `so_${start},eo_${end},q_auto`);
 // A frame as a JPEG, for lightweight previews (defaults to the first frame).
 export const posterUrl = (url: string, atSecond = 0) => withTransform(url, `so_${atSecond}`).replace(/\.\w+$/, ".jpg");
 
