@@ -1,7 +1,7 @@
 "use client";
 
 import { ThunderboltOutlined } from "@ant-design/icons";
-import { Alert, Button, Col, Descriptions, Form, Grid, Input, Radio, Row, Select, Slider, theme, Typography } from "antd";
+import { Alert, Button, Col, Descriptions, Flex, Form, Grid, Input, Radio, Row, Select, Slider, theme, Typography } from "antd";
 import { useState } from "react";
 import { RangePreview } from "@/components/RangePreview";
 import { notifyCreditsChanged, useCredits } from "@/components/useCredits";
@@ -48,6 +48,11 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
   const credits = useCredits();
   const estimate = range ? estimateCredits(range[1] - range[0], values?.fps_resolution ?? "HALF", source.frameRate) : undefined;
   const overBudget = credits != null && estimate != null && estimate > credits;
+  const estimateText = (
+    <Typography.Text strong type={overBudget ? "danger" : undefined}>
+      ≈ {estimate} credits{credits != null && <Typography.Text type="secondary"> · {credits} left</Typography.Text>}
+    </Typography.Text>
+  );
 
   async function submit(v: FormValues) {
     setSubmitting(true);
@@ -172,15 +177,7 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
             { key: "model", label: "Model", children: values?.style?.model },
             { key: "fps", label: "Frame rate", children: values?.fps_resolution },
             { key: "prompt", label: "Prompt", children: promptType && PROMPT_TYPE_LABELS[promptType] },
-            {
-              key: "cost",
-              label: "Estimated cost",
-              children: (
-                <Typography.Text strong type={overBudget ? "danger" : undefined}>
-                  ≈ {estimate} credits{credits != null && <Typography.Text type="secondary"> · {credits} left</Typography.Text>}
-                </Typography.Text>
-              ),
-            },
+            ...(isMobile ? [] : [{ key: "cost", label: "Estimated cost", children: estimateText }]),
           ]}
         />
       )}
@@ -192,6 +189,14 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
             : { maxWidth: 420 }
         }
       >
+        {isMobile && (
+          <Flex justify="space-between" align="baseline" style={{ marginBottom: 8 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+              Estimated cost
+            </Typography.Text>
+            {estimateText}
+          </Flex>
+        )}
         {overBudget && (
           <Alert
             type="warning"
