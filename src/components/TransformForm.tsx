@@ -3,6 +3,7 @@
 import { ThunderboltOutlined } from "@ant-design/icons";
 import { Alert, Button, Col, Descriptions, Form, Grid, Input, Radio, Row, Select, Slider, theme, Typography } from "antd";
 import { useState } from "react";
+import { RangePreview } from "@/components/RangePreview";
 import { notifyCreditsChanged, useCredits } from "@/components/useCredits";
 import { startTransform } from "@/lib/api";
 import {
@@ -100,12 +101,20 @@ export function TransformForm({ source, initial, onSubmitted }: Props) {
         rules={[
           {
             validator: (_, v?: [number, number]) =>
-              v && v[1] > v[0] ? Promise.resolve() : Promise.reject(new Error("End must be after start")),
+              v && v[1] > v[0]
+                ? Promise.resolve()
+                : Promise.reject(new Error("Drag the handles apart to select at least 0.1s of video")),
           },
         ]}
       >
         <Slider range min={0} max={max} step={0.1} tooltip={{ formatter: (v) => `${v}s` }} />
       </Form.Item>
+
+      {range && range[1] > range[0] && (
+        <div style={{ marginBottom: 24, maxWidth: 520 }}>
+          <RangePreview url={source.url} start={range[0]} end={range[1]} />
+        </div>
+      )}
 
       <Row gutter={[24, 0]}>
         <Col xs={24} md={12}>

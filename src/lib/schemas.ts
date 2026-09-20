@@ -75,7 +75,7 @@ export const transformParamsSchema = z
     }),
   })
   .refine((p) => p.end_seconds > p.start_seconds, {
-    message: "End time must be after start time",
+    message: "The clip must be at least 0.1 seconds long",
     path: ["end_seconds"],
   })
   .refine((p) => p.style.prompt_type === "default" || !!p.style.prompt, {
